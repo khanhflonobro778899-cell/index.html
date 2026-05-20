@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vantablack Nexus - HWID Secure System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: #030303; 
+            color: #e3e3e6; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; 
+            font-family: 'Rajdhani', sans-serif;
+            background-image: 
+                linear-gradient(rgba(0, 255, 100, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 100, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            perspective: 2000px; 
+        }
+
+        .delta-panel { 
+            background: rgba(10, 10, 12, 0.85); 
+            backdrop-filter: blur(20px);
+            border: 1px solid #1a2a1f; 
+            width: 96vw; 
+            height: 94vh;
+            border-radius: 16px; 
+            box-shadow: 0 0 80px rgba(0, 255, 128, 0.1), inset 0 0 30px rgba(0, 255, 128, 0.05); 
+            transform: rotateX(3deg) translateY(-5px);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .delta-panel:hover {
+            transform: rotateX(0deg) translateY(0px);
+            box-shadow: 0 0 100px rgba(0, 255, 128, 0.2), inset 0 0 50px rgba(0, 255, 128, 0.1); 
+        }
+
+        .delta-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 3px;
+            background: #00ff73;
+            box-shadow: 0 0 20px #00ff73, 0 0 40px #00ff73;
+            animation: scanline 4s linear infinite;
+            z-index: 10;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .delta-header { 
+            background: linear-gradient(180deg, #111115 0%, #0a0a0c 100%); 
+            border-bottom: 1px solid #1a2a1f; 
+            padding: 24px 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            flex-shrink: 0;
+        }
+
+        .delta-title { display: flex; align-items: center; gap: 20px; }
+        
+        .delta-logo { 
+            width: 48px; height: 48px; 
+            background: #000; 
+            border: 2px solid #00ff73; 
+            border-radius: 8px; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 24px; font-weight: 900; color: #00ff73; 
+            font-family: 'Share Tech Mono', monospace;
+            box-shadow: 0 0 15px rgba(0, 255, 115, 0.4);
+            text-shadow: 0 0 8px #00ff73;
+        }
+
+        .delta-title h1 { 
+            font-size: 28px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; 
+            color: #fff; text-shadow: 0 0 15px rgba(255,255,255,0.3);
+        }
+
+        .version-tag { 
+            font-size: 16px; background: #001a09; padding: 8px 16px; 
+            border-radius: 6px; color: #00ff73; border: 1px solid #004d22; 
+            font-family: 'Share Tech Mono', monospace; letter-spacing: 2px;
+        }
+
+        .delta-body { 
+            padding: 40px; 
+            position: relative; 
+            z-index: 2; 
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: 25px;
+        }
+
+        .status-wrapper { 
+            display: flex; align-items: center; gap: 15px; 
+            background: rgba(0,0,0,0.6); padding: 20px 24px; 
+            border-radius: 8px; border: 1px solid #151518; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .status-dot { 
+            width: 14px; height: 14px; border-radius: 50%; 
+            background-color: #ffaa00; box-shadow: 0 0 15px #ffaa00; 
+            transition: 0.3s all;
+        }
+
+        .status-text { 
+            font-size: 20px; font-weight: 700; color: #ffaa00; 
+            text-transform: uppercase; letter-spacing: 2px; transition: 0.3s all;
+        }
+
+        .delta-terminal { 
+            background: #030303; border: 1px solid #1a2a1f; border-radius: 8px; 
+            padding: 24px; flex-grow: 1; overflow-y: auto; 
+            font-family: 'Share Tech Mono', monospace; font-size: 18px; 
+            color: #00ff73; line-height: 1.8; 
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.9);
+        }
+
+        .delta-terminal::-webkit-scrollbar { width: 8px; }
+        .delta-terminal::-webkit-scrollbar-thumb { background: #00ff73; border-radius: 8px; }
+
+        .bottom-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .delta-input { 
+            width: 100%; background: #08080a; border: 2px solid #1a2a1f; 
+            border-radius: 8px; padding: 25px; color: #fff; 
+            font-family: 'Share Tech Mono', monospace; font-size: 28px; 
+            text-align: center; outline: none; transition: 0.3s;
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+            letter-spacing: 4px;
+        }
+        
+        .delta-input:focus { border-color: #00ff73; box-shadow: 0 0 25px rgba(0, 255, 115, 0.3); }
+
+        .delta-timer { 
+            font-size: 20px; font-weight: 700; color: #8e8e93; 
+            font-family: 'Share Tech Mono', monospace; text-align: center; 
+            letter-spacing: 2px;
+        }
+
+        .delta-btn { 
+            width: 100%; background: #00ff73; color: #000; border: none; 
+            padding: 22px; font-size: 22px; font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 4px; 
+            border-radius: 8px; cursor: pointer; 
+            box-shadow: 0 0 30px rgba(0, 255, 115, 0.3);
+            transition: all 0.2s ease-in-out;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        .delta-btn:hover:not(:disabled) { 
+            background: #00cc5c; box-shadow: 0 0 50px rgba(0, 255, 115, 0.6); transform: scale(1.01); 
+        }
+        
+        .delta-btn:disabled { 
+            background: #151518; color: #48484a; border: 1px solid #242428; 
+            cursor: not-allowed; box-shadow: none; transform: scale(1);
+        }
+
+        .scanning-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.4s;
+            backdrop-filter: blur(10px);
+        }
+        .scanning-overlay.active { opacity: 1; pointer-events: auto; }
+        
+        .loader {
+            width: 100px; height: 100px; border: 4px solid transparent;
+            border-top-color: #00ff73; border-bottom-color: #00ff73;
+            border-radius: 50%; animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0,255,115,0.2);
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .scan-text { font-family: 'Share Tech Mono', monospace; color: #00ff73; font-size: 24px; letter-spacing: 4px; text-shadow: 0 0 10px #00ff73; }
+        .scan-timer { font-family: 'Share Tech Mono', monospace; color: #fff; font-size: 40px; margin-top: 15px; font-weight: bold;}
+
+    </style>
+</head>
+<body>
+
+    <div class="delta-panel" id="mainPanel">
+        <div class="scanning-overlay" id="scanOverlay">
+            <div class="loader"></div>
+            <div class="scan-text">CORE ANTI-BOT SECURITY SCAN...</div>
+            <div class="scan-timer" id="scanTimerText">10.00s</div>
+        </div>
+
+        <div class="delta-header">
+            <div class="delta-title">
+                <div class="delta-logo">V</div>
+                <h1>Vantablack Nexus</h1>
+            </div>
+            <div class="version-tag">v7.0 HWID SYNC</div>
+        </div>
+
+        <div class="delta-body">
+            <div class="status-wrapper">
+                <div class="status-dot" id="statusDot"></div>
+                <div class="status-text" id="statusText">SYSTEM LOCKED</div>
+            </div>
+
+            <div class="delta-terminal" id="terminal">
+                > VANTABLACK NEXUS PROTOCOL INITIALIZED...<br>
+                > ESTABLISHING SECURE CONNECTION TO MAINFRAME...<br>
+            </div>
+
+            <div class="bottom-controls">
+                <input type="text" class="delta-input" id="keyDisplay" value="AWAITING HWID VERIFICATION..." readonly>
+                <div class="delta-timer" id="timerDisplay">LOCKED</div>
+                <button class="delta-btn" id="actionBtn" disabled>PROCESSING SECURE LINK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const terminal = document.getElementById('terminal');
+        const keyDisplay = document.getElementById('keyDisplay');
+        const actionBtn = document.getElementById('actionBtn');
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const scanOverlay = document.getElementById('scanOverlay');
+        const scanTimerText = document.getElementById('scanTimerText');
+
+        // Hàm mã hóa HWID (Base64 Encode)
+        function btoa_custom(str) { return btoa(encodeURIComponent(str)); }
+        
+        // MÃ BÍ MẬT - PHẢI GIỐNG HỆT TRONG FILE SCRIPT LUA
+        const secretSalt = "VantaSecret2026";
+
+        function printLog(text, ms = 200, color = "#00ff73") {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const span = document.createElement('span');
+                    span.style.color = color;
+                    span.innerHTML = `> ${text}<br>`;
+                    terminal.appendChild(span);
+                    terminal.scrollTop = terminal.scrollHeight;
+                    resolve();
+                }, ms);
+            });
+        }
+
+        function isBotDetected() {
+            if (navigator.webdriver || window.document.documentElement.getAttribute("webdriver")) return true;
+            if (window.navigator.userAgent.indexOf("Headless") !== -1) return true;
+            if (window.outerWidth === 0 && window.outerHeight === 0) return true;
+            return false;
+        }
+
+        window.onload = async function() {
+            // Lấy HWID từ thanh URL (?hwid=...)
+            const urlParams = new URLSearchParams(window.location.search);
+            const hwid = urlParams.get('hwid');
+
+            // NẾU KHÔNG CÓ HWID TỪ SCRIPT TRUYỀN SANG -> CHẶN NGAY LẬP TỨC
+            if (!hwid) {
+                await printLog("CRITICAL ERROR: NO HWID DETECTED.", 300, "#ff3344");
+                await printLog("ACCESS DENIED. PLEASE RUN SCRIPT IN-GAME FIRST TO GET VALID LINK.", 200, "#ff3344");
+                
+                statusDot.style.backgroundColor = "#ff3344";
+                statusDot.style.boxShadow = "0 0 25px #ff3344";
+                statusText.innerText = "ACCESS DENIED";
+                statusText.style.color = "#ff3344";
+                
+                keyDisplay.value = "HWID_MISSING_ERROR";
+                actionBtn.innerText = "INVALID ACCESS";
+                return;
+            }
+
+            let activeSession = JSON.parse(localStorage.getItem('vb_hwid_session_v7') || 'null');
+            const currentTime = Date.now();
+
+            // Nếu thiết bị này đã lấy Key và chưa hết hạn 24h
+            if (activeSession && activeSession.hwid === hwid && currentTime < activeSession.expiry) {
+                await printLog(`DEVICE HWID DETECTED: ${hwid}`, 300);
+                await printLog("SECURE 24H SESSION FOUND. BYPASSING SCAN...", 200);
+                loadKeyToUI(activeSession.key, activeSession.expiry);
+                return;
+            }
+
+            // Nếu người mới hoặc đã hết hạn -> Quét Anti-bot 10 giây
+            await printLog(`DEVICE HWID DETECTED: ${hwid}`, 300, "#ffaa00");
+            await printLog("SESSION EXPIRED OR NOT FOUND.", 200, "#ff3344");
+            await printLog("INITIATING MANDATORY ANTI-BOT SCAN...", 400, "#ffaa00");
+            
+            startSecurityScan(hwid);
+        };
+
+        function startSecurityScan(hwid) {
+            scanOverlay.classList.add('active');
+            let timeLeft = 10.00;
+            
+            localStorage.removeItem('vb_hwid_session_v7'); 
+            
+            const scanInterval = setInterval(async () => {
+                timeLeft -= 0.01;
+                scanTimerText.innerText = timeLeft.toFixed(2) + "s";
+
+                if (isBotDetected()) {
+                    clearInterval(scanInterval);
+                    scanTimerText.innerText = "BOT DETECTED!";
+                    scanTimerText.style.color = "#ff3344";
+                    await printLog("MALICIOUS ACTIVITY DETECTED. CONNECTION TERMINATED.", 0, "#ff3344");
+                    return;
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(scanInterval);
+                    scanOverlay.classList.remove('active');
+                    generateHWIDKey(hwid);
+                }
+            }, 10);
+        }
+
+        async function generateHWIDKey(hwid) {
+            await printLog("SCAN PASSED. HUMAN VERIFIED.", 300, "#00ff73");
+            await printLog("ENCRYPTING HARDWARE ID...", 300);
+            
+            // THUẬT TOÁN TẠO KEY DỰA TRÊN HWID VÀ MÃ BÍ MẬT
+            const rawData = hwid + secretSalt;
+            const generatedKey = "Vanta_" + btoa_custom(rawData).substring(0, 20);
+            
+            const newExpiry = Date.now() + (24 * 60 * 60 * 1000); // Sống 24 giờ
+
+            // Lưu session chứa cả HWID để so sánh đối chiếu
+            localStorage.setItem('vb_hwid_session_v7', JSON.stringify({ 
+                hwid: hwid, 
+                key: generatedKey, 
+                expiry: newExpiry 
+            }));
+
+            await printLog("SECURE KEY ASSIGNED TO DEVICE.", 300);
+            loadKeyToUI(generatedKey, newExpiry);
+        }
+
+        function loadKeyToUI(key, expiryTimestamp) {
+            keyDisplay.value = key;
+            
+            statusDot.style.backgroundColor = "#00ff73";
+            statusDot.style.boxShadow = "0 0 25px #00ff73";
+            statusText.innerText = "ACCESS GRANTED // DEVICE VERIFIED";
+            statusText.style.color = "#00ff73";
+
+            actionBtn.innerText = "COPY SECURE KEY";
+            actionBtn.disabled = false;
+            
+            actionBtn.onclick = function() {
+                keyDisplay.select();
+                navigator.clipboard.writeText(keyDisplay.value).then(() => {
+                    actionBtn.innerText = "KEY COPIED TO CLIPBOARD!";
+                    actionBtn.style.background = "#fff";
+                    setTimeout(() => {
+                        actionBtn.innerText = "COPY SECURE KEY";
+                        actionBtn.style.background = "#00ff73";
+                    }, 2500);
+                });
+            };
+
+            const countdownInterval = setInterval(() => {
+                const liveDistance = expiryTimestamp - Date.now();
+                if (liveDistance <= 0) {
+                    clearInterval(countdownInterval);
+                    timerDisplay.innerText = "KEY EXPIRED. SYSTEM LOCKED.";
+                    timerDisplay.style.color = "#ff3344";
+                    keyDisplay.value = "EXPIRED_SESSION_PLEASE_RELOAD";
+                    actionBtn.innerText = "RELOAD SCRIPT TO GET NEW LINK";
+                    actionBtn.disabled = true;
+                    
+                    statusDot.style.backgroundColor = "#ff3344";
+                    statusDot.style.boxShadow = "0 0 25px #ff3344";
+                    statusText.innerText = "SESSION TIMEOUT";
+                    statusText.style.color = "#ff3344";
+
+                    localStorage.removeItem('vb_hwid_session_v7'); 
+                    return;
+                }
+                const hrs = Math.floor(liveDistance / 3600000).toString().padStart(2, '0');
+                const mins = Math.floor((liveDistance % 3600000) / 60000).toString().padStart(2, '0');
+                const secs = Math.floor((liveDistance % 60000) / 1000).toString().padStart(2, '0');
+                timerDisplay.innerText = `KEY VALID FOR: ${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
